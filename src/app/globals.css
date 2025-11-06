@@ -1,26 +1,211 @@
 @import "tailwindcss";
+@theme inline {
+  --color-brand: #130342;
+  --color-accent: #f1fe2b;
+  --color-bg: #ffffff;
+  --color-border: #e8eaf2;
+}
+:root {
+  --color-foreground: #130342;
+}
+body {
+  background: var(--color-bg);
+  color: var(--color-foreground);
+  direction: rtl;
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-foreground: #130342;
+}
+body {
+  background: var(--color-bg);
+  color: var(--color-foreground);
+  direction: rtl;
+}
+/* globals.css */
+.container-app {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+@media (min-width: 640px) {
+  .container-app {
+    padding-inline: 24px;
+  }
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+@font-face {
+  font-family: "RBFont";
+  src: url("https://sanint.sirv.com/zyros_natinonal_day_font/RB%20Font.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: RBFont, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+}
+:root {
+  --footer-bg: #130342;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  /* ألوان الهوية – ما نغيّر النصوص/القيم المنطقية */
+  --brand: #130342;
+  --brand2: #2d0b7a; /* ظلّ فاخر من نفس العائلة */
+  --accent: #f1fe2b;
+
+  --bg: #ffffff;
+  --ink: #0a0a0a;
+
+  /* ظلال فاخرة ناعمة */
+  --shadow-soft: 0 10px 30px rgba(19, 3, 66, 0.12),
+    0 2px 8px rgba(19, 3, 66, 0.08);
+  --ring: 0 0 0 1px rgba(19, 3, 66, 0.08), 0 0 0 6px rgba(241, 254, 43, 0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* خلفية بنمط خفيف + نويز لطابع فاخر */
+body {
+  background: radial-gradient(
+      1200px 600px at 80% -10%,
+      rgba(241, 254, 43, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 600px at 0% 20%,
+      rgba(19, 3, 66, 0.06),
+      transparent 55%
+    ),
+    var(--bg);
+  color: var(--ink);
+}
+
+/* بطاقات/حوايط فاخرة سريعة الاستعمال */
+.card-genz {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(250, 250, 255, 0.86)
+  );
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(19, 3, 66, 0.1);
+  border-radius: 28px;
+  box-shadow: var(--shadow-soft);
+}
+
+/* زر رئيسي فاخر */
+.btn-genz {
+  position: relative;
+  border-radius: 18px;
+  padding: 14px 22px;
+  font-weight: 800;
+  letter-spacing: 0.1px;
+  background: linear-gradient(90deg, var(--brand), var(--brand2));
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(19, 3, 66, 0.35);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+  isolation: isolate;
+}
+.btn-genz::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(241, 254, 43, 0.28), transparent 45%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  border-radius: 18px;
+  pointer-events: none;
+}
+.btn-genz:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(19, 3, 66, 0.38);
+}
+.btn-genz:hover::after {
+  opacity: 1;
+}
+
+/* زر ثانوي إطار فاخر */
+.btn-ghost-genz {
+  border: 2px solid var(--brand);
+  color: var(--brand);
+  background: transparent;
+  border-radius: 18px;
+  padding: 14px 22px;
+  font-weight: 800;
+  transition: all 0.25s ease;
+}
+.btn-ghost-genz:hover {
+  color: #fff;
+  background: var(--brand);
+  box-shadow: 0 8px 22px rgba(19, 3, 66, 0.22);
+}
+
+/* نقاط السلايدر فاخرة */
+.dot-genz {
+  height: 10px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  transition: all 0.25s ease;
+  border: 1px solid rgba(19, 3, 66, 0.12);
+}
+.dot-genz.is-active {
+  width: 34px;
+  background: var(--brand);
+  box-shadow: 0 0 0 4px rgba(19, 3, 66, 0.1), 0 6px 16px rgba(19, 3, 66, 0.25);
+}
+
+/* شريط تقدم السلايدر */
+.slider-bar {
+  height: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+.slider-bar > .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #ffd700, var(--accent));
+  animation: bar 4.2s linear forwards;
+}
+@keyframes bar {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slider-bar > .fill {
+    animation: none;
+    width: 100%;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* حافة لامعة على السلايدر */
+.frame-lux {
+  border-radius: 34px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(19, 3, 66, 0.1);
+  background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.75),
+        rgba(255, 255, 255, 0.95)
+      )
+      padding-box,
+    linear-gradient(120deg, rgba(241, 254, 43, 0.7), rgba(19, 3, 66, 0.25))
+      border-box;
 }
+
+/* ماسك مستطيل ناعم للسلايدر */

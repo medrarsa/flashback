@@ -1,65 +1,145 @@
-import Image from "next/image";
+// app/page.tsx
+"use client";
+import * as React from "react";
 
-export default function Home() {
+import ScrollProgressBar from "./_components/ScrollProgressBar";
+import Header from "./_components/Header";
+import HeroSection from "./_components/HeroSection";
+import AboutSection from "./_components/AboutSection";
+import ServicesSection from "./_components/ServicesSection";
+// حذفنا BeforeAfterSlider من الاستيراد
+import GallerySection from "./_components/GallerySection";
+import ContactSection from "./_components/ContactSection";
+import BottomTabBar from "./_components/BottomTabBar";
+import Footer from "./_components/Footer";
+import Lightbox from "./_components/Lightbox";
+import FeaturedAlbums from "./_components/FeaturedAlbums";
+
+type SectionId = "home" | "about" | "services" | "gallery" | "contact";
+
+const RB_FONT =
+  "https://sanint.sirv.com/zyros_natinonal_day_font/RB%20Font.ttf";
+
+export default function Page() {
+  const [activeFilter, setActiveFilter] = React.useState("all");
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [activeService, setActiveService] = React.useState("glass");
+  const [photo, setPhoto] = React.useState<{
+    src: string;
+    label: string;
+  } | null>(null);
+
+  const [activeSection, setActiveSection] = React.useState<SectionId>("home");
+
+  React.useEffect(() => {
+    const ids: SectionId[] = [
+      "home",
+      "about",
+      "services",
+      "gallery",
+      "contact",
+    ];
+    let raf = 0;
+    const headerEl = () =>
+      document.querySelector("header") as HTMLElement | null;
+    const headerH = () => headerEl()?.offsetHeight ?? 0;
+
+    const measure = () => {
+      const y = window.scrollY + headerH() + 8;
+      let current: SectionId = "home";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.offsetTop <= y) current = id;
+      }
+      setActiveSection(current);
+    };
+
+    const on = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", on);
+      window.removeEventListener("resize", on);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const onHash = () => {
+      const id = (location.hash.replace("#", "") || "home") as SectionId;
+      if (["home", "about", "services", "gallery", "contact"].includes(id)) {
+        setActiveSection(id);
+      }
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div
+      dir="rtl"
+      className="min-h-screen bg-white text-gray-900 selection:bg-[#130342] selection:text-[#f1fe2b] overflow-x-hidden scroll-smooth antialiased"
+      style={
+        {
+          // @ts-ignore
+          "--brand": "#130342",
+          // @ts-ignore
+          "--brand2": "#2a1570",
+          // @ts-ignore
+          "--accent": "#f1fe2b",
+          fontFamily:
+            "RBFont, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        } as React.CSSProperties
+      }
+    >
+      <style jsx global>{`
+        @font-face {
+          font-family: "RBFont";
+          src: url("${RB_FONT}") format("truetype");
+          font-weight: 100 900;
+          font-style: normal;
+          font-display: swap;
+        }
+        html,
+        body {
+          font-family: RBFont, -apple-system, BlinkMacSystemFont, "Segoe UI",
+            Roboto, sans-serif;
+        }
+      `}</style>
+      <ScrollProgressBar />
+      <Header
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+        activeSection={activeSection}
+        onQuote={() => {}}
+        onNav={(id) => setActiveSection(id)}
+      />
+      {/* الأقسام */}
+      <HeroSection onQuote={() => {}} /> {/* id="home" */}
+      <AboutSection /> {/* id="about" */}
+      <ServicesSection
+        activeService={activeService}
+        setActiveService={setActiveService}
+      />{" "}
+      {/* id="services" */}
+      {/* 🔥 القسم الجديد بدل "نتيجة التنفيذ" */}
+      <GallerySection
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+        onOpen={setPhoto}
+      />{" "}
+      {/* id="gallery" */}
+      <ContactSection /> {/* id="contact" */}
+      <div className="md:hidden h-[calc(80px+env(safe-area-inset-bottom))]" />
+      <BottomTabBar />
+      <Footer />
+      <Lightbox photo={photo} onClose={() => setPhoto(null)} />
     </div>
   );
 }
