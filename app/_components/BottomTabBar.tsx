@@ -1,5 +1,8 @@
 "use client";
 
+import * as React from "react";
+
+/* ===== Helpers ===== */
 function smoothScrollTo(hash: string) {
   if (typeof window === "undefined") return;
   const el = document.querySelector(hash) as HTMLElement | null;
@@ -10,8 +13,31 @@ function smoothScrollTo(hash: string) {
   window.scrollTo({ top: y, behavior: "smooth" });
 }
 
+/* راصد السكشن النشط */
+function useActiveSection(ids: string[], offset = 120) {
+  const [active, setActive] = React.useState<string>(ids[0] ?? "");
+  React.useEffect(() => {
+    if (typeof window === "undefined" || !ids.length) return;
+    const ios: IntersectionObserver[] = [];
+    ids.forEach((id) => {
+      const el = document.querySelector(id);
+      if (!el) return;
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && setActive(id)),
+        { rootMargin: `-${offset}px 0px -60% 0px`, threshold: [0.2, 0.5] }
+      );
+      io.observe(el);
+      ios.push(io);
+    });
+    return () => ios.forEach((o) => o.disconnect());
+  }, [ids, offset]);
+  return active;
+}
+
+type Tab = { href: string; label: string; icon: string; highlight?: boolean };
+
 export default function BottomTabBar() {
-  const tabs = [
+  const tabs: Tab[] = [
     {
       href: "#home",
       label: "الرئيسية",
@@ -35,35 +61,102 @@ export default function BottomTabBar() {
       icon: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
     },
   ];
+
+  const anchors = tabs.map((t) => t.href).filter((h) => h.startsWith("#"));
+  const active = useActiveSection(anchors);
+
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white/95 backdrop-blur-xl border-t-2 border-gray-100 shadow-[0_-10px_30px_-12px_rgba(0,0,0,0.12)]">
-      <div className="grid grid-cols-5 h-20 px-2">
-        {tabs.map((t, i) => (
-          <a
-            key={i}
-            href={t.href}
-            onClick={(e) => {
-              if (t.href.startsWith("#")) {
-                e.preventDefault();
-                smoothScrollTo(t.href);
-              }
-            }}
-            className={`grid place-items-center gap-1 rounded-2xl active:scale-95 transition-all ${
-              t.highlight ? "text-[var(--brand)]" : "text-gray-600"
-            }`}
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2.5}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d={t.icon} />
-            </svg>
-            <span className="text-[10px] font-bold">{t.label}</span>
-          </a>
-        ))}
+    <nav
+      aria-label="Bottom Navigation"
+      className="fixed bottom-0 inset-x-0 z-[60] md:hidden pointer-events-none"
+    >
+      <div className="mx-auto max-w-screen-sm px-3 pb-[env(safe-area-inset-bottom)] pointer-events-auto">
+        {/* حاوية مقصوصة بالكامل لتفادي أي بروز حواف */}
+        <div className="relative rounded-[22px] overflow-hidden isolate">
+          {/* الخلفية الثلجية: بدون أي لمعة فوق واتساب، وتدرّجات خفيفة جداً */}
+          <div
+            className="
+              absolute inset-0
+              bg-white/40 backdrop-blur-xl
+              after:absolute after:inset-0
+              after:bg-[linear-gradient(to_top,rgba(0,0,0,0.05),transparent)]
+            "
+            aria-hidden="true"
+          />
+          {/* حدّ خفيف موحّد داخل القصّ */}
+          <div
+            className="absolute inset-0 ring-1 ring-white/35"
+            aria-hidden="true"
+          />
+
+          {/* المحتوى */}
+          <div className="relative grid grid-cols-5 h-20">
+            {tabs.map((t, i) => {
+              const isAnchor = t.href.startsWith("#");
+              const isActive = isAnchor && active === t.href;
+
+              return (
+                <a
+                  key={i}
+                  href={t.href}
+                  aria-label={t.label}
+                  aria-current={isActive ? "page" : undefined}
+                  onClick={(e) => {
+                    if (isAnchor) {
+                      e.preventDefault();
+                      smoothScrollTo(t.href);
+                    }
+                  }}
+                  className={[
+                    "flex flex-col items-center justify-center gap-1",
+                    "transition-all select-none",
+                    "active:scale-[0.97] focus:outline-none",
+                    "text-slate-700",
+                  ].join(" ")}
+                >
+                  {/* أيقونة — واتساب ستروك ثابت بدون لمعة/نبض */}
+                  <svg
+                    className={[
+                      "h-6 w-6 transition-transform",
+                      isActive ? "scale-110" : "scale-100",
+                    ].join(" ")}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke={t.highlight ? "#24CC66" : "currentColor"}
+                    strokeWidth={2.2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d={t.icon}
+                    />
+                  </svg>
+
+                  {/* لابل */}
+                  <span
+                    className={[
+                      "text-[10px] font-semibold tracking-wide",
+                      isActive ? "text-slate-900" : "text-slate-700",
+                    ].join(" ")}
+                  >
+                    {t.label}
+                  </span>
+
+                  {/* مؤشر Active خطّي تحت الأيقونة */}
+                  <span
+                    className={[
+                      "mt-0.5 h-[3px] w-5 rounded-full transition-all",
+                      isActive
+                        ? "bg-[var(--accent,#f1fe2b)]"
+                        : "bg-transparent",
+                    ].join(" ")}
+                    aria-hidden="true"
+                  />
+                </a>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </nav>
   );
